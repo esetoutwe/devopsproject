@@ -1,5 +1,3 @@
-# devopsproject
-
 # Full-Stack Authentication System
 
 This is a full-stack authentication system using **PostgreSQL**, **Node.js (Express)**, and **React**. It includes user registration, login, and token-based authentication.
@@ -217,9 +215,4 @@ npm start
 2. Create an account.
 3. Log in at `http://localhost:3000/signin`.
 
-✅ **Congratulations! Your full-stack authentication system is live.**
-
-## 📜 License
-
-This project is licensed under the [MIT License](LICENSE).
 
