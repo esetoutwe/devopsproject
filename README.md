@@ -1,6 +1,6 @@
-# Full-Stack Authentication System
+# Full-Stack Web Application on Kubernetes
 
-This is a full-stack authentication system using **PostgreSQL**, **Node.js (Express)**, and **React**. It includes user registration, login, and token-based authentication.
+This is a full-stack web application using **PostgreSQL**, **Node.js (Express)**, and **React**. It includes user registration, login, and token-based authentication.
 
 ![image](https://github.com/user-attachments/assets/667f410f-2580-4175-bc06-1f1f66cff22f)
 
@@ -26,12 +26,15 @@ This is a full-stack authentication system using **PostgreSQL**, **Node.js (Expr
     └── package.json
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 Ensure you have the following installed:
 - Node.js
 - PostgreSQL
+- Kubernetes cluster
+- Github account
+- DockerHub account
 
 ### 1. Set Up PostgreSQL
 
