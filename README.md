@@ -1,8 +1,8 @@
 # Full-Stack Authentication System
 
 This is a full-stack authentication system using **PostgreSQL**, **Node.js (Express)**, and **React**. It includes user registration, login, and token-based authentication.
-![image](https://github.com/user-attachments/assets/bce2035b-1843-495a-85d9-ded56d6d12b8)
 
+![image](https://github.com/user-attachments/assets/667f410f-2580-4175-bc06-1f1f66cff22f)
 
 ## 🛠️ Features
 
