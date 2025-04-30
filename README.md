@@ -14,16 +14,28 @@ This is a full-stack web application using **PostgreSQL**, **Node.js (Express)**
 
 ## 📂 Project Structure
 ```
-├── backend
+react-signupPage-postgres/
+├── backend/         # Node.js API
+│   ├── Dockerfile
 │   ├── server.js
-│   └── .env
-└── frontend
-    ├── src
-    │   ├── components
-    │   │    ├── Signup.js
-    │   │    └── Signin.js
-    │   └── App.js
-    └── package.json
+│   ├── package.json
+│   ├── .env
+├── frontend/        # React App
+│   ├── Dockerfile
+│   ├── src/
+│   ├── package.json
+├── db/              # PostgreSQL
+│   ├── init.sql
+├── k8s/             # Kubernetes manifests
+│   ├── postgres-deployment.yaml
+│   ├── backend-deployment.yaml
+│   ├── frontend-deployment.yaml
+│   ├── pgadmin-deployment.yaml (optional)
+│   ├── ingress.yaml
+│   ├── secrets.yaml
+│   ├── configmap.yaml
+├── docker-compose.yaml (for local testing)
+
 ```
 
 ## Getting Started
