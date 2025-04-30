@@ -233,3 +233,249 @@ npm start
 3. Log in at `http://localhost:3000/signin`.
 
 
+
+
+
+############################
+TO AMEND THE FORMAT
+###########################
+
+3️⃣ Set Up PostgreSQL Database
+
+🔹 Create db/init.sql (to create a users table)
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+4️⃣ Create Docker Containers
+
+🔹 Backend (backend/Dockerfile)
+# Use official Node.js image
+FROM node:20
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 5001
+CMD ["node", "server.js"]
+🔹 Frontend (frontend/Dockerfile)
+# Use official Node.js image for React build
+FROM node:20 as build
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Serve static files with Nginx
+FROM nginx:latest
+COPY --from=build /app/build /usr/share/nginx/html
+EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]
+🔹 PostgreSQL (k8s/postgres-deployment.yaml)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:latest
+        env:
+        - name: POSTGRES_DB
+          value: "mydb"
+        - name: POSTGRES_USER
+          value: "myuser"
+        - name: POSTGRES_PASSWORD
+          value: "mypassword"
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: postgres
+5️⃣ Deploy the Backend
+
+🔹 Backend Deployment (k8s/backend-deployment.yaml)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: backend-image
+        env:
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_USER
+          value: "myuser"
+        - name: DB_PASSWORD
+          value: "mypassword"
+        - name: JWT_SECRET
+          value: "mysecret"
+        ports:
+        - containerPort: 5001
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+  - protocol: TCP
+    port: 5001
+    targetPort: 5001
+6️⃣ Deploy the Frontend
+
+🔹 Frontend Deployment (k8s/frontend-deployment.yaml)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: frontend-image
+        ports:
+        - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+  type: LoadBalancer
+7️⃣ Ingress for Routing
+
+🔹 (k8s/ingress.yaml)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: myapp.local
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 5001
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+Enable Ingress:
+
+minikube addons enable ingress
+8️⃣ Build and Deploy
+
+🔹 Build Docker Images
+cd backend
+docker build -t backend-image .
+cd ../frontend
+docker build -t frontend-image .
+🔹 Apply Kubernetes Configurations
+kubectl apply -f k8s/
+🔹 Get Minikube IP
+minikube ip
+Add this IP to /etc/hosts:
+
+echo "$(minikube ip) myapp.local" | sudo tee -a /etc/hosts
+9️⃣ Access the Application
+
+Frontend: http://myapp.local
+Backend API: http://myapp.local/api
+PostgreSQL: Accessible inside the cluster
+🔟 Debugging
+
+Check logs:
+
+kubectl logs -l app=backend
+Check services:
+
+kubectl get services
+Restart a pod:
+
+kubectl delete pod -l app=backend
+🚀 Your app is now running in a Kubernetes cluster!
