@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 ```
 
-2. Create Docker Containers
+2. Create Docker Containers Files
 
  Backend (backend/Dockerfile)
 ```
@@ -284,6 +284,20 @@ COPY --from=build /app/build /usr/share/nginx/html
 EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]
 ```
+
+3. Build Docker Images
+
+Build image for Backendend - Image name "backend1.0"
+```
+cd backend
+docker build -t local/backend10 .
+docker tag local/backend10 esetoutwe/backend:1.0
+docker push esetoutwe/backend:1.0
+```
+
+Build image "backend1.0"
+cd ../frontend
+docker build -t frontend-image .
 
 🔹 PostgreSQL (k8s/postgres-deployment.yaml)
 apiVersion: v1
