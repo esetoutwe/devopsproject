@@ -226,7 +226,7 @@ export default App;
 npm start
 ```
 
-### 4. Test the Application
+### 4. Test the Application Locally
 
 1. Open `http://localhost:3000/signup` in your browser.
 2. Create an account.
@@ -234,15 +234,12 @@ npm start
 
 
 
+### 5. Create Container and Run Application On Kubernetes
 
+1. Set Up PostgreSQL Database
 
-############################
-TO AMEND THE FORMAT
-###########################
-
-3️⃣ Set Up PostgreSQL Database
-
-🔹 Create db/init.sql (to create a users table)
+ Create db/init.sql (to create a users table)
+```
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
@@ -250,9 +247,12 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-4️⃣ Create Docker Containers
+```
 
-🔹 Backend (backend/Dockerfile)
+2. Create Docker Containers
+
+ Backend (backend/Dockerfile)
+```
 # Use official Node.js image
 FROM node:20
 
@@ -265,7 +265,10 @@ COPY . .
 
 EXPOSE 5001
 CMD ["node", "server.js"]
-🔹 Frontend (frontend/Dockerfile)
+```
+
+ Frontend (frontend/Dockerfile)
+```
 # Use official Node.js image for React build
 FROM node:20 as build
 
@@ -280,6 +283,8 @@ FROM nginx:latest
 COPY --from=build /app/build /usr/share/nginx/html
 EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]
+```
+
 🔹 PostgreSQL (k8s/postgres-deployment.yaml)
 apiVersion: v1
 kind: PersistentVolumeClaim
