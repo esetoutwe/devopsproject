@@ -291,15 +291,22 @@ Build image for Backendend - Image name "backend1.0"
 ```
 cd backend
 docker build -t local/backend10 .
-docker tag local/backend10 esetoutwe/backend:1.0
-docker push esetoutwe/backend:1.0
+docker tag local/backend10 <github account>/backend:1.0
+docker push <github account>/backend:1.0
 ```
 
-Build image "backend1.0"
-cd ../frontend
-docker build -t frontend-image .
+Build image for Frontend - Image name "frontend1.0"
+```
+cd frontend
+docker build -t local/frontend10 .
+docker tag local/frontend10 <github account>/frontend:1.0
+docker push <github account>/frontend:1.0
+```
 
-🔹 PostgreSQL (k8s/postgres-deployment.yaml)
+4. Kubernetes YAML files to deploy Docker images on Kubernetes Cluster
+
+ PostgreSQL (k8s/postgres-deployment.yaml)
+ ```
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -356,9 +363,10 @@ spec:
   - port: 5432
   selector:
     app: postgres
-5️⃣ Deploy the Backend
+```
 
-🔹 Backend Deployment (k8s/backend-deployment.yaml)
+ Backend Deployment (k8s/backend-deployment.yaml)
+ ```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -400,9 +408,10 @@ spec:
   - protocol: TCP
     port: 5001
     targetPort: 5001
-6️⃣ Deploy the Frontend
+```
 
-🔹 Frontend Deployment (k8s/frontend-deployment.yaml)
+ Frontend Deployment (k8s/frontend-deployment.yaml)
+ ```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -436,9 +445,10 @@ spec:
     port: 80
     targetPort: 3000
   type: LoadBalancer
-7️⃣ Ingress for Routing
+```
 
-🔹 (k8s/ingress.yaml)
+Ingress for Routing - (k8s/ingress.yaml)
+```
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -464,37 +474,16 @@ spec:
             name: frontend
             port:
               number: 80
-Enable Ingress:
+```
 
-minikube addons enable ingress
-8️⃣ Build and Deploy
-
-🔹 Build Docker Images
-cd backend
-docker build -t backend-image .
-cd ../frontend
-docker build -t frontend-image .
-🔹 Apply Kubernetes Configurations
+5. Apply Kubernetes Configurations
+```
 kubectl apply -f k8s/
-🔹 Get Minikube IP
-minikube ip
-Add this IP to /etc/hosts:
+```
 
-echo "$(minikube ip) myapp.local" | sudo tee -a /etc/hosts
-9️⃣ Access the Application
+6. Access the Application
 
 Frontend: http://myapp.local
 Backend API: http://myapp.local/api
 PostgreSQL: Accessible inside the cluster
-🔟 Debugging
 
-Check logs:
-
-kubectl logs -l app=backend
-Check services:
-
-kubectl get services
-Restart a pod:
-
-kubectl delete pod -l app=backend
-🚀 Your app is now running in a Kubernetes cluster!
